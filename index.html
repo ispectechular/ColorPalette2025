@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>IEP Hub – Palette Square (Mini)</title>
+<style>
+  :root{
+    --ring:#e5e7eb;
+    --ring-focus:#94a3b8;
+    --pad:8px;
+    --radius:12px;
+    --btnpad:6px 10px;
+    --btnfs:12px;
+  }
+  html,body{margin:0;background:transparent;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial}
+  .widget{background:#fff;border:1px solid var(--ring);border-radius:var(--radius);padding:var(--pad);max-width:180px;width:100%;}
+
+  .mosaic{width:100%;aspect-ratio:1/1;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);overflow:hidden;border-radius:10px;border:1px solid var(--ring)}
+  .tile{cursor:pointer;border:none;padding:0;margin:0;background:transparent}
+  .tile:focus-visible{outline:none;box-shadow:0 0 0 3px var(--ring-focus) inset}
+
+  .actions{display:flex;justify-content:center;margin-top:8px}
+  button.copy-all{font:600 var(--btnfs)/1 ui-sans-serif,system-ui;padding:var(--btnpad);border-radius:9px;border:1px solid var(--ring);background:#f8fafc;cursor:pointer}
+  button.copy-all:focus{outline:none;box-shadow:0 0 0 3px var(--ring-focus)}
+
+  .toast{position:fixed;right:10px;bottom:10px;background:#0f172a;color:#fff;padding:6px 9px;border-radius:8px;font-size:12px;opacity:0;transform:translateY(6px);transition:.25s ease;z-index:9999}
+  .toast.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+  <div class="widget" id="paletteWidget" data-size="160">
+    <div class="mosaic" id="mosaic" aria-label="Color palette grid"></div>
+    <div class="actions"><button class="copy-all" id="copyAll" type="button">Copy all</button></div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  const PALETTE=["#4A7A92","#5A94B1","#C2D6E1","#879B8D","#A0B4A7","#D3DDD7","#756A85","#8E869F","#C4BFD0"];
+
+  const widget=document.getElementById('paletteWidget');
+  const mosaic=document.getElementById('mosaic');
+  const copyAllBtn=document.getElementById('copyAll');
+  const toast=document.getElementById('toast');
+
+  (function applySize(){
+    const s=parseInt(widget.getAttribute('data-size')||'');
+    if(!isNaN(s) && s>100 && s<600){ widget.style.maxWidth = s + 'px'; }
+  })();
+
+  function copy(text){
+    if(navigator.clipboard && window.isSecureContext){
+      return navigator.clipboard.writeText(text).catch(()=>fallback(text));
+    }
+    return fallback(text);
+  }
+  function fallback(text){
+    const ta=document.createElement('textarea');
+    ta.value=text; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0'; ta.style.top='-1000px';
+    document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} ta.remove();
+    return Promise.resolve();
+  }
+  function toastMsg(msg){
+    toast.textContent=msg; toast.classList.add('show');
+    clearTimeout(toastMsg._t); toastMsg._t=setTimeout(()=>toast.classList.remove('show'),900);
+  }
+
+  function render(){
+    mosaic.innerHTML='';
+    PALETTE.forEach(hex=>{
+      const tile=document.createElement('button');
+      tile.type='button'; tile.className='tile'; tile.style.background=hex; tile.setAttribute('aria-label',`Copy ${hex}`); tile.title=hex;
+      tile.addEventListener('click',()=>copy(hex).then(()=>toastMsg(`Copied ${hex}`)));
+      mosaic.appendChild(tile);
+    });
+  }
+
+  copyAllBtn.addEventListener('click',()=> copy(PALETTE.join('\n')).then(()=>toastMsg('Copied all colors')) );
+  render();
+})();
+</script>
+</body>
+</html>
