@@ -4,50 +4,180 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>IEP Hub – Palette Square (Mini)</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --ring:#e5e7eb;
     --ring-focus:#94a3b8;
-    --pad:8px;
-    --radius:12px;
-    --btnpad:6px 10px;
-    --btnfs:12px;
+    --primary:#4A7A92;
+    --accent:#756A85;
+    --bg-glass:rgba(255,255,255,0.7);
+    --shadow:0 10px 20px rgba(0,0,0,0.1);
+    --radius:18px;
+    --pad:16px;
+    --btnpad:10px 14px;
+    --btnfs:clamp(12px, 1.2vw, 14px);
+    --label-fs:clamp(12px, 1.3vw, 14px);
   }
-  html,body{margin:0;background:transparent;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial}
-  .widget{background:#fff;border:1px solid var(--ring);border-radius:var(--radius);padding:var(--pad);max-width:180px;width:100%;}
 
-  .mosaic{width:100%;aspect-ratio:1/1;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);overflow:hidden;border-radius:10px;border:1px solid var(--ring)}
-  .tile{cursor:pointer;border:none;padding:0;margin:0;background:transparent}
-  .tile:focus-visible{outline:none;box-shadow:0 0 0 3px var(--ring-focus) inset}
+  html,body{
+    margin:0;
+    background:transparent;
+    font-family:"Lexend", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+  }
 
-  .actions{display:flex;justify-content:center;margin-top:8px}
-  button.copy-all{font:600 var(--btnfs)/1 ui-sans-serif,system-ui;padding:var(--btnpad);border-radius:9px;border:1px solid var(--ring);background:#f8fafc;cursor:pointer}
-  button.copy-all:focus{outline:none;box-shadow:0 0 0 3px var(--ring-focus)}
+  .widget{
+    width:100%;
+    margin:0 auto;
+    background:var(--bg-glass);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    border:1px solid var(--ring);
+    border-radius:var(--radius);
+    padding:var(--pad);
+    box-shadow:var(--shadow);
+  }
 
-  .toast{position:fixed;right:10px;bottom:10px;background:#0f172a;color:#fff;padding:6px 9px;border-radius:8px;font-size:12px;opacity:0;transform:translateY(6px);transition:.25s ease;z-index:9999}
-  .toast.show{opacity:1;transform:translateY(0)}
+  .title{
+    margin:0 0 10px 0;
+    color:var(--primary);
+    font-weight:700;
+    font-size:clamp(18px, 2.2vw, 22px);
+    text-align:center;
+  }
+
+  .mosaic{
+    width:100%;
+    aspect-ratio:1/1;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    grid-template-rows:repeat(3,1fr);
+    gap:6px;
+    overflow:hidden;
+    border-radius:12px;
+    border:1px solid var(--ring);
+  }
+
+  .tile{
+    cursor:pointer;
+    border:none;
+    padding:0;
+    margin:0;
+    background:transparent;
+    position:relative;
+    border-radius:8px;
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+
+  .tile:focus-visible{ outline:none; box-shadow:0 0 0 3px var(--ring-focus) inset; }
+  .tile:hover{ transform:translateY(-1px); box-shadow:0 4px 10px rgba(0,0,0,0.08); }
+
+  .tile .hex{
+    position:absolute;
+    left:6px; bottom:6px;
+    padding:2px 6px;
+    border-radius:6px;
+    font-size:var(--label-fs);
+    line-height:1;
+    font-weight:500;
+    background:rgba(0,0,0,0.55);
+    color:#fff;
+    opacity:0;
+    transform:translateY(4px);
+    transition:.15s ease;
+    user-select:none;
+    pointer-events:none;
+  }
+  .tile:hover .hex, .tile:focus-visible .hex{ opacity:1; transform:translateY(0); }
+
+  .button-row{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    margin-top:12px;
+    gap:8px;
+  }
+  .button-row .copy{ justify-self:center; }
+
+  .copy-all-row{
+    display:flex;
+    justify-content:center;
+    margin-top:10px;
+  }
+
+  button.copy{
+    font:700 var(--btnfs)/1 "Lexend", ui-sans-serif, system-ui;
+    padding:var(--btnpad);
+    border-radius:12px;
+    border:1px solid transparent;
+    background:var(--accent);
+    color:#fff;
+    cursor:pointer;
+    transition:filter .15s ease, transform .03s ease;
+  }
+  button.copy:hover{ filter:brightness(1.05); }
+  button.copy:active{ transform:translateY(1px); }
+  button.copy:focus{ outline:none; box-shadow:0 0 0 3px var(--ring-focus); }
+
+  #copyAll{
+    background:var(--primary);
+  }
+
+  .hint{
+    margin-top:6px;
+    text-align:center;
+    color:#879B8D;
+    font-size:clamp(11px, 1.1vw, 13px);
+    font-weight:500;
+  }
+
+  .toast{
+    position:fixed;
+    right:10px; bottom:10px;
+    background:#0f172a;
+    color:#fff;
+    padding:8px 12px;
+    border-radius:10px;
+    font-size:12px;
+    opacity:0;
+    transform:translateY(6px);
+    transition:.25s ease;
+    z-index:9999;
+  }
+  .toast.show{ opacity:1; transform:translateY(0); }
 </style>
 </head>
 <body>
-  <div class="widget" id="paletteWidget" data-size="160">
+  <div class="widget" id="paletteWidget" role="region" aria-label="IEP Hub color palette">
+    <h2 class="title">IEP Hub – Palette</h2>
     <div class="mosaic" id="mosaic" aria-label="Color palette grid"></div>
-    <div class="actions"><button class="copy-all" id="copyAll" type="button">Copy all</button></div>
+
+    <div class="button-row">
+      <button class="copy" id="copyCol1" type="button" aria-label="Copy column 1 values">Copy Column 1</button>
+      <button class="copy" id="copyCol2" type="button" aria-label="Copy column 2 values">Copy Column 2</button>
+      <button class="copy" id="copyCol3" type="button" aria-label="Copy column 3 values">Copy Column 3</button>
+    </div>
+    <div class="copy-all-row">
+      <button class="copy" id="copyAll" type="button" aria-label="Copy all hex values">Copy All</button>
+    </div>
+    <div class="hint">Click any square to copy its hex • Use column buttons for grouped copies</div>
   </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 (function(){
-  const PALETTE=["#4A7A92","#5A94B1","#C2D6E1","#879B8D","#A0B4A7","#D3DDD7","#756A85","#8E869F","#C4BFD0"];
+  const PALETTE=[
+    "#4A7A92","#5A94B1","#C2D6E1",
+    "#879B8D","#A0B4A7","#D3DDD7",
+    "#756A85","#8E869F","#C4BFD0"
+  ];
 
-  const widget=document.getElementById('paletteWidget');
-  const mosaic=document.getElementById('mosaic');
-  const copyAllBtn=document.getElementById('copyAll');
-  const toast=document.getElementById('toast');
-
-  (function applySize(){
-    const s=parseInt(widget.getAttribute('data-size')||'');
-    if(!isNaN(s) && s>100 && s<600){ widget.style.maxWidth = s + 'px'; }
-  })();
+  const mosaic   = document.getElementById('mosaic');
+  const copyAll  = document.getElementById('copyAll');
+  const copyCol1 = document.getElementById('copyCol1');
+  const copyCol2 = document.getElementById('copyCol2');
+  const copyCol3 = document.getElementById('copyCol3');
+  const toast    = document.getElementById('toast');
 
   function copy(text){
     if(navigator.clipboard && window.isSecureContext){
@@ -57,28 +187,52 @@
   }
   function fallback(text){
     const ta=document.createElement('textarea');
-    ta.value=text; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0'; ta.style.top='-1000px';
-    document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} ta.remove();
+    ta.value=text; ta.setAttribute('readonly','');
+    ta.style.position='fixed'; ta.style.opacity='0'; ta.style.top='-1000px';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); }catch(e){}
+    ta.remove();
     return Promise.resolve();
   }
   function toastMsg(msg){
     toast.textContent=msg; toast.classList.add('show');
-    clearTimeout(toastMsg._t); toastMsg._t=setTimeout(()=>toast.classList.remove('show'),900);
+    clearTimeout(toastMsg._t);
+    toastMsg._t=setTimeout(()=>toast.classList.remove('show'),1100);
   }
 
   function render(){
     mosaic.innerHTML='';
     PALETTE.forEach(hex=>{
       const tile=document.createElement('button');
-      tile.type='button'; tile.className='tile'; tile.style.background=hex; tile.setAttribute('aria-label',`Copy ${hex}`); tile.title=hex;
-      tile.addEventListener('click',()=>copy(hex).then(()=>toastMsg(`Copied ${hex}`)));
+      tile.type='button';
+      tile.className='tile';
+      tile.style.background=hex;
+      tile.setAttribute('aria-label',`Copy ${hex}`);
+      tile.title=hex;
+
+      const label=document.createElement('span');
+      label.className='hex';
+      label.textContent=hex;
+
+      tile.appendChild(label);
+      tile.addEventListener('click',()=> copy(hex).then(()=>toastMsg(`Copied ${hex}`)));
       mosaic.appendChild(tile);
     });
   }
 
-  copyAllBtn.addEventListener('click',()=> copy(PALETTE.join('\n')).then(()=>toastMsg('Copied all colors')) );
+  function copyColumn(colIndex){
+    const colValues = PALETTE.filter((_,i)=> i % 3 === colIndex);
+    return copy(colValues.join('\n')).then(()=>toastMsg(`Copied Column ${colIndex+1}`));
+  }
+
+  copyAll.addEventListener('click',()=> copy(PALETTE.join('\n')).then(()=>toastMsg('Copied all colors')));
+  copyCol1.addEventListener('click',()=> copyColumn(0));
+  copyCol2.addEventListener('click',()=> copyColumn(1));
+  copyCol3.addEventListener('click',()=> copyColumn(2));
+
   render();
 })();
 </script>
 </body>
 </html>
+
